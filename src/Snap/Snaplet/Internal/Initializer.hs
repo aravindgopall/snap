@@ -55,7 +55,7 @@ import           Prelude                      (Bool (..), Either (..), Eq (..),
                                                String, concat, concatMap,
                                                const, either,
                                                error, filter, flip, fst, id,
-                                               map, not, show, ($), ($!), (++),
+                                               map, not, show, print, ($), ($!), (++),
                                                (.))
 import           Snap.Core                    (Snap, liftSnap, route)
 import           Snap.Http.Server             (Config, completeConfig,
@@ -626,6 +626,7 @@ serveSnaplet :: Config Snap AppConfig
              -> IO ()
 serveSnaplet startConfig initializer = do
     config <- commandLineAppConfig startConfig
+    print "after config"
     serveSnapletNoArgParsing config initializer
 
 ------------------------------------------------------------------------------
@@ -639,10 +640,14 @@ serveSnapletNoArgParsing :: Config Snap AppConfig
              -> IO ()
 serveSnapletNoArgParsing config initializer = do
     let env = appEnvironment =<< getOther config
+    print "after config env"
     (msgs, handler, doCleanup) <- runSnaplet env initializer
 
+    print "after config runSnaplet"
     (conf, site) <- combineConfig config handler
+    print "after config combineConfig"
     createDirectoryIfMissing False "log"
+    print "after config createdirectory"
     let serve = httpServe conf
 
     when (loggingEnabled conf) $ liftIO $ hPutStrLn stderr $ T.unpack msgs
